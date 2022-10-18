@@ -1,0 +1,6 @@
+cv2
+numpy
+pynput
+pyautogui
+face_recognition
+tensorflow
