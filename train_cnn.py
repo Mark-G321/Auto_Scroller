@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import cv2 as cv
-import pyautogui
 from tensorflow import keras
 import face_recognition as fr
 from keras.models import *
@@ -70,11 +69,10 @@ def scan():
 filepaths = os.listdir(root)
 X, Y = [], []
 for filepath in filepaths:
-    x, y, _, _ = filepath.split('.')
-    x = float(x) / width
-    y = float(y) / height
+    _, y, _, _ = filepath.split('.')
+    y = float(y)
     X.append(normalize(cv.imread(root + filepath)))
-    if y > 550/height:
+    if y > 550:
         Y.append(1)
     else:
         Y.append(0)
@@ -92,18 +90,26 @@ model.add(MaxPooling2D((2, 2)))
 model.add(Flatten())
 model.add(Dense(512, activation='relu'))
 model.add(Dense(1, activation='sigmoid'))
-model.compile(optimizer="adam", loss="binary_crossentropy")
-model.summary()
+model.compile(optimizer="adam", loss="mean_squared_error")
+# model.summary()
 
-epochs = 100
+epochs = 30
 for epoch in range(epochs):
-    model.fit(X, Y, batch_size=32, verbose=2)
+    model.fit(X, Y, batch_size=32)
 
 
+counter = 0
 while True:
     eyes = scan()
     if not eyes is None:
         eyes = np.expand_dims(eyes / 255.0, axis=0)
         s = model.predict(eyes)[0][0]
+        print(s)
+        s = round(s)
         #pyautogui.moveTo(100, y * height)
-        print(round(s))
+        print(s)
+        if s == 1:
+            counter += 1
+            if counter == 15:
+                print("***SCROLLING DOWN***")
+                counter = 0
