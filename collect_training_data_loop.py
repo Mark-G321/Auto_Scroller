@@ -7,7 +7,6 @@ import os
 from pynput.mouse import Listener
 
 root = r'C:\Users\marko\Downloads\CVT\testeyes3\\'
-captured = {}
 
 
 def normalize(x):
