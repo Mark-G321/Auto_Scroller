@@ -2,8 +2,6 @@
 import face_recognition as fr
 import numpy as np
 import cv2 as cv
-import pyautogui
-import os
 from pynput.mouse import Listener
 
 root = r'C:\Users\marko\Downloads\CVT\testeyes3\\'
