@@ -104,10 +104,8 @@ while True:
     if not eyes is None:
         eyes = np.expand_dims(eyes / 255.0, axis=0)
         s = model.predict(eyes)[0][0]
-        print(s)
         s = round(s)
         #pyautogui.moveTo(100, y * height)
-        print(s)
         if s == 1:
             counter += 1
             if counter == 15:
