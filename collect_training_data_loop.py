@@ -4,16 +4,17 @@ import numpy as np
 import cv2 as cv
 import pyautogui
 import os
-from pynput.mouse import Listener
 
+
+# the root directory of the project
 root = r'C:\Users\marko\Downloads\CVT\testeyes3\\'
 
-
+# normalizes the images
 def normalize(x):
     minn, maxx = x.min(), x.max()
     return (x - minn) / (maxx - minn)
 
-
+# A cv2 function that concatantes two pictures of different sizes
 def hconcat_resize_min(im_list, interpolation=cv.INTER_CUBIC):
     # This function concatenates two images horizontaly
     h_min = min(im.shape[0] for im in im_list)
@@ -21,13 +22,11 @@ def hconcat_resize_min(im_list, interpolation=cv.INTER_CUBIC):
                       for im in im_list]
     return cv.hconcat(im_list_resize)
 
-# This function finds the eyes in frame and returns an image with only the eyes
-
-
+# Finds the eyes in frame and returns an image with only the eyes
 def findEyes(frame, left_eye, right_eye):
     # This function finds the eyes in frame and returns an image with only the eyes
 
-    # get eye coordinates:
+    # get eye coordinates from the list:
     # left eye
     min_x_left_eye = min(left_eye, key=lambda t: t[0])[0]
     max_x_left_eye = max(left_eye, key=lambda t: t[0])[0]
@@ -44,9 +43,8 @@ def findEyes(frame, left_eye, right_eye):
                                frame[min_y_right_eye:max_y_right_eye, min_x_right_eye:max_x_right_eye]])
     return eyes
 
-
+# Takes @times * pictures of the user's eyes and saves them into @folder
 def getEye(times=1, coords=(0, 0), folder="eyes", size=(300, 40), webcam=cv.VideoCapture(0)):
-    # This function takes @times pictures of the eyes and saves them into @folder
 
     os.makedirs(folder, exist_ok=True)
     for i in range(times):
@@ -76,7 +74,7 @@ def getEye(times=1, coords=(0, 0), folder="eyes", size=(300, 40), webcam=cv.Vide
                 i) + ".jpg", eyes)
         blank = np.zeros((480, 640), dtype="uint8")
 
-
+#scans the screen and takes an image of the user's eyes at every 100px location
 webcam = cv.VideoCapture(0)
 for i in range(100, 1900, 100):
     for j in range(100, 1000, 100):
