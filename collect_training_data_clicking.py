@@ -4,15 +4,17 @@ import numpy as np
 import cv2 as cv
 from pynput.mouse import Listener
 
+#root will depend on the location of the project
 root = r'C:\Users\marko\Downloads\CVT\testeyes3\\'
+#captured will track the coordinates of already captured images
 captured = {}
 
-
+#normlizes the values in the image
 def normalize(x):
     minn, maxx = x.min(), x.max()
     return (x - minn) / (maxx - minn)
 
-
+#A cv2 function to horizontaly concatante two images of different sizes
 def hconcat_resize_min(im_list, interpolation=cv.INTER_CUBIC):
     # This function concatenates two images horizontaly
     h_min = min(im.shape[0] for im in im_list)
@@ -20,9 +22,8 @@ def hconcat_resize_min(im_list, interpolation=cv.INTER_CUBIC):
                       for im in im_list]
     return cv.hconcat(im_list_resize)
 
-# This function finds the eyes in frame and returns an image with only the eyes
 
-
+# Finds the eyes in frame and returns an image with only the eyes
 def findEyes(frame, left_eye, right_eye):
     # This function finds the eyes in frame and returns an image with only the eyes
 
@@ -43,7 +44,7 @@ def findEyes(frame, left_eye, right_eye):
                                frame[min_y_right_eye:max_y_right_eye, min_x_right_eye:max_x_right_eye]])
     return eyes
 
-
+#scans for an image from video_capture 
 def scan(image_size=(64, 32)):
     _, frame = video_capture.read()
     frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -62,7 +63,7 @@ def scan(image_size=(64, 32)):
     except:
         return None
 
-
+#activates when mouse is clicked
 def on_click(x, y, button, pressed):
     # If the action was a mouse PRESS (not a RELEASE)
     if pressed:
@@ -79,7 +80,7 @@ def on_click(x, y, button, pressed):
                 captured[(x, y)] = captured[(x, y)]+1
             filename = root + "{}.{}.{}.jpeg".format(x, y, counter)
             cv.imwrite(filename, eyes)
-            print("saved file", filename)
+            print("saved file:", filename)
 
 
 video_capture = cv.VideoCapture(0)
