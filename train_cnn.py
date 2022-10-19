@@ -1,4 +1,5 @@
 import numpy as np
+import time
 import os
 import cv2 as cv
 from tensorflow import keras
@@ -6,6 +7,7 @@ import face_recognition as fr
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
+import pyautogui
 
 
 root = r'C:\Users\marko\Downloads\CVT\testeyes3\\'
@@ -13,17 +15,22 @@ width, height = 1919, 1079
 video_capture = cv.VideoCapture(0)
 
 # normalizes the images in case they werent normaliezd during data gathering
+
+
 def normalize(x):
     minn, maxx = x.min(), x.max()
     return (x - minn) / (maxx - minn)
 
 # A cv2 function that concatantes two different sized images
+
+
 def hconcat_resize_min(im_list, interpolation=cv.INTER_CUBIC):
     # This function concatenates two images horizontaly
     h_min = min(im.shape[0] for im in im_list)
     im_list_resize = [cv.resize(im, (int(im.shape[1] * h_min / im.shape[0]), h_min), interpolation=interpolation)
                       for im in im_list]
     return cv.hconcat(im_list_resize)
+
 
 def findEyes(frame, left_eye, right_eye):
     # This function finds the eyes in frame and returns an image with only the eyes
@@ -45,7 +52,9 @@ def findEyes(frame, left_eye, right_eye):
                                frame[min_y_right_eye:max_y_right_eye, min_x_right_eye:max_x_right_eye]])
     return eyes
 
-#scans for a picture of the eyes
+# scans for a picture of the eyes
+
+
 def scan():
     _, frame = video_capture.read()
     frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -64,55 +73,58 @@ def scan():
     except:
         return None
 
-#loads the images from @filepaths
+# loads the training images from the root directory
+
+
 filepaths = os.listdir(root)
 X, Y = [], []
 for filepath in filepaths:
     _, y, _, _ = filepath.split('.')
     y = float(y)
+    # no need to normalize here if the pictures are loaded are already normalized
     X.append(normalize(cv.imread(root + filepath)))
-    #break off point for when to scroll (set at 550) ideally should be set relative to users position to screen
     if y > 550:
         Y.append(1)
     else:
         Y.append(0)
 X = np.array(X) / 255.0
 Y = np.array(Y)
-print(X.shape, Y.shape)
+#print(X.shape, Y.shape)
 
-# Creates a model 
 model = Sequential()
 model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(32, 64, 3)))
-model.add(MaxPooling2D((2, 2)))
-model.add(Conv2D(64, (3, 3), activation='relu'))
-model.add(MaxPooling2D((2, 2)))
 model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(MaxPooling2D((2, 2)))
 model.add(Flatten())
 model.add(Dense(512, activation='relu'))
 model.add(Dense(1, activation='sigmoid'))
-model.compile(optimizer="adam", loss="mean_squared_error")
+model.compile(optimizer=Adam(0.0001), loss="mean_squared_error")
 # model.summary()
 
-# Trains the model
 epochs = 30
 for epoch in range(epochs):
-    model.fit(X, Y, batch_size=32)
+    model.fit(X, Y, batch_size=16)
+
+model.save('models/trial_model.h5')
 
 
-# counter is used to count how long the user holds his gaze at the bottom of the screen
-# This prevents scrolling when the user simply glances down not intending to scroll 
 counter = 0
 while True:
-    #scans for the eyes
+    # gets eyes from webcam
     eyes = scan()
     if not eyes is None:
         eyes = np.expand_dims(eyes / 255.0, axis=0)
+        # guesses whether to scroll or not s==1 for scroll
         s = model.predict(eyes)[0][0]
         s = round(s)
+        print(s)  # for testing
         if s == 1:
             counter += 1
+            # 15 chosen to ballance against random glances down
+            # so user needs to hold gaze at the bottom of a page for a period before page gets scrolled
             if counter == 15:
-                #currently only prints the decision to scroll while still testing accuracy of the model
                 print("***SCROLLING DOWN***")
+                pyautogui.scroll(-420)
                 counter = 0
+                # wait before counting again so user can adjust his gaze
+                time.sleep(1)
