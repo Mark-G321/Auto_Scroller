@@ -5,7 +5,7 @@ import cv2 as cv
 from pynput.mouse import Listener
 
 #root will depend on the location of the project
-root = r'C:\Users\marko\Downloads\CVT\testeyes3\\'
+root = r'C:\Users\marko\Downloads\CVT\testeyes3'
 #captured will track the coordinates of already captured images
 captured = {}
 
@@ -78,7 +78,7 @@ def on_click(x, y, button, pressed):
             else:
                 counter = captured[(x, y)]
                 captured[(x, y)] = captured[(x, y)]+1
-            filename = root + "{}.{}.{}.jpeg".format(x, y, counter)
+            filename = root + "\\" + "{}.{}.{}.jpeg".format(x, y, counter)
             cv.imwrite(filename, eyes)
             print("saved file:", filename)
 
