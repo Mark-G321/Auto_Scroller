@@ -6,8 +6,7 @@ import pyautogui
 import os
 
 
-# the root directory of the project
-root = r'C:\Users\marko\Downloads\CVT\testeyes3\\'
+
 
 # normalizes the images
 def normalize(x):
@@ -70,7 +69,7 @@ def getEye(times=1, coords=(0, 0), folder="eyes", size=(300, 40), webcam=cv.Vide
         eyes = normalize(eyes)
 
         cv.imwrite(
-            folder + "/" + str(coords[0]) + "." + str(coords[1]) + "." + str(
+            folder + "\\" + str(coords[0]) + "." + str(coords[1]) + "." + str(
                 i) + ".jpg", eyes)
         blank = np.zeros((480, 640), dtype="uint8")
 
